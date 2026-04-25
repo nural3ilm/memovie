@@ -1,1 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MémoVie - Conservez vos souvenirs précieux</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #c9a961; --primary-dark: #8b6f47; --accent: #e8d5c4; --bg-light: #f5e6d3; --bg-dark: #3a3a3a; --text: #5a5a5a; --border: #e0d0bf; --success: #27ae60; --danger: #e74c3c; --info: #3498db; }
+        body { font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, var(--bg-light) 0%, var(--accent) 100%); color: var(--text); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; padding: 40px 20px; animation: fadeInDown 0.8s ease-out; }
+        .logo-section { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .logo-text { font-family: 'Crimson Text', serif; font-size: 3.2rem; color: var(--primary-dark); font-weight: 400; font-style: italic; letter-spacing: -1px; }
+        .tagline { font-size: 1rem; color: var(--primary-dark); font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+        .nav-tabs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+        .nav-btn { padding: 12px 28px; font-size: 0.95rem; border: 2px solid transparent; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; background: rgba(255, 255, 255, 0.5); color: var(--primary-dark); }
+        .nav-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.8); border-color: var(--primary); }
+        .nav-btn.active { background: linear-gradient(135deg, var(--primary) 0%, #b8956a 100%); color: white; box-shadow: 0 8px 25px rgba(139, 111, 71, 0.25); }
+        .section { display: none; animation: fadeIn 0.5s ease-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .form-card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 12px 48px rgba(139, 111, 71, 0.08); margin-bottom: 30px; }
+        .form-group { margin-bottom: 28px; }
+        .form-group label { display: block; font-size: 0.95rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 10px; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 14px 16px; font-size: 1rem; border: 2px solid var(--border); border-radius: 12px; font-family: 'Outfit', sans-serif; transition: all 0.3s ease; background: #fafafa; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.1); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .audio-section { background: linear-gradient(135deg, rgba(201, 169, 97, 0.05) 0%, rgba(232, 213, 196, 0.1) 100%); padding: 24px; border-radius: 16px; margin: 20px 0; border: 1px solid var(--border); }
+        .audio-controls { display: flex; gap: 12px; margin-bottom: 16px; }
+        .btn-record { flex: 1; padding: 14px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; background: var(--danger); color: white; }
+        .btn-record:hover:not(:disabled) { background: #c0392b; transform: translateY(-2px); }
+        .btn-record.recording { background: var(--success); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); } 50% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); } }
+        .btn-stop { flex: 1; padding: 14px 20px; background: #95a5a6; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; }
+        .audio-preview { background: white; padding: 16px; border-radius: 12px; display: none; margin-top: 16px; }
+        .audio-preview.active { display: block; }
+        .audio-preview audio { width: 100%; }
+        .btn-primary { width: 100%; padding: 16px 24px; font-size: 1.05rem; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; background: linear-gradient(135deg, var(--primary) 0%, #b8956a 100%); color: white; box-shadow: 0 8px 25px rgba(139, 111, 71, 0.25); transition: all 0.3s ease; letter-spacing: 0.5px; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(139, 111, 71, 0.35); }
+        .search-bar { background: white; padding: 24px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); }
+        .search-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+        .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.95rem; }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin: 30px 0; }
+        .memory-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; cursor: pointer; }
+        .memory-card:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(139, 111, 71, 0.15); }
+        .memory-card-header { background: linear-gradient(135deg, var(--primary) 0%, #b8956a 100%); padding: 20px; color: white; }
+        .memory-card-date { font-size: 0.85rem; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase; }
+        .memory-card-title { font-family: 'Crimson Text', serif; font-size: 1.6rem; margin: 10px 0 0 0; font-weight: 400; }
+        .memory-card-body { padding: 20px; }
+        .memory-card-meta { display: flex; justify-content: space-between; font-size: 0.9rem; color: #999; margin-bottom: 16px; }
+        .memory-card-actions { display: flex; gap: 8px; }
+        .btn-small { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; }
+        .btn-play { background: var(--info); color: white; }
+        .btn-play:hover { background: #2980b9; }
+        .btn-share { background: var(--primary); color: white; }
+        .btn-share:hover { background: #b8956a; }
+        .btn-delete { background: var(--danger); color: white; }
+        .btn-delete:hover { background: #c0392b; }
+        .empty-state { text-align: center; padding: 80px 40px; color: #a89070; }
+        .empty-icon { font-size: 4rem; margin-bottom: 20px; }
+        .empty-state h2 { font-family: 'Crimson Text', serif; font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 10px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 24px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25); animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { font-family: 'Crimson Text', serif; font-size: 2.2rem; color: var(--primary-dark); margin-bottom: 20px; font-weight: 400; }
+        .modal-audio { width: 100%; margin: 20px 0; }
+        .modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .modal-btn-close { background: #95a5a6; color: white; }
+        .modal-btn-share { background: var(--primary); color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 32px 24px; border-radius: 16px; text-align: center; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06); }
+        .stat-number { font-family: 'Crimson Text', serif; font-size: 3rem; color: var(--primary); font-weight: 400; }
+        .stat-label { color: #999; font-size: 0.9rem; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; }
+        .share-link { background: #f9f9f9; padding: 12px 16px; border-radius: 10px; margin: 16px 0; word-break: break-all; font-family: monospace; font-size: 0.9rem; }
+        .btn-copy { width: 100%; padding: 12px; background: var(--info); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; margin-top: 12px; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); animation: slideInRight 0.3s ease-out; z-index: 2000; }
+        @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 768px) { .logo-text { font-size: 2.5rem; } .form-card { padding: 24px; } .gallery { grid-template-columns: 1fr; } .search-grid { grid-template-columns: 1fr; } .modal-content { padding: 24px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <span style="font-size: 2.5rem;">🌸</span>
+                <div><div class="logo-text">MémoVie</div></div>
+            </div>
+            <p class="tagline">Conservez vos souvenirs pour l'éternité</p>
+        </header>
 
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('record')">➕ Enregistrer</button>
+            <button class="nav-btn" onclick="switchTab('gallery')">📚 Galerie</button>
+            <button class="nav-btn" onclick="switchTab('stats')">📊 Stats</button>
+        </div>
+
+        <div id="record" class="section active">
+            <div class="form-card">
+                <h2 style="color: var(--primary-dark); margin-bottom: 30px; font-family: 'Crimson Text';">Enregistrer un nouveau souvenir</h2>
+                <div class="form-group"><label>Titre du souvenir</label><input type="text" id="title" placeholder="Ex: Mon mariage, Une journée à la plage..."></div>
+                <div class="form-group"><label>Date du souvenir</label><input type="date" id="date"></div>
+                <div class="form-group"><label>Catégorie</label><select id="category"><option value="">-- Sélectionner une catégorie --</option><option value="Famille">👨‍👩‍👧 Famille</option><option value="Voyage">✈️ Voyage</option><option value="Amis">👥 Amis</option><option value="Enfance">🎂 Enfance</option><option value="Travail">💼 Travail</option><option value="Loisir">🎨 Loisir</option><option value="Autre">📌 Autre</option></select></div>
+                <div class="form-group"><label>Notes supplémentaires (optionnel)</label><textarea id="notes" placeholder="Détails, noms, dates importantes..."></textarea></div>
+                <div class="audio-section"><label style="color: var(--primary-dark); font-weight: 600; margin-bottom: 16px; display: block;">🎙️ Enregistrement vocal</label><div class="audio-controls"><button class="btn-record" id="recordBtn" onclick="startRecording()">🎙️ Commencer</button><button class="btn-stop" id="stopBtn" onclick="stopRecording()" disabled>⏹️ Arrêter</button></div><div class="audio-preview" id="audioPreview"><audio id="audioPlayback" controls></audio><div class="audio-info">✅ Enregistrement effectué</div></div></div>
+                <button class="btn-primary" onclick="saveMemory()">💾 Sauvegarder ce souvenir</button>
+            </div>
+        </div>
+
+        <div id="gallery" class="section">
+            <div class="search-bar"><div class="search-grid"><input type="text" id="searchInput" placeholder="🔍 Rechercher vos souvenirs..." class="search-input" oninput="filterGallery()"><select id="categoryFilter" class="search-input" onchange="filterGallery()"><option value="">Toutes les catégories</option><option value="Famille">👨‍👩‍👧 Famille</option><option value="Voyage">✈️ Voyage</option><option value="Amis">👥 Amis</option><option value="Enfance">🎂 Enfance</option><option value="Travail">💼 Travail</option><option value="Loisir">🎨 Loisir</option><option value="Autre">📌 Autre</option></select></div></div>
+            <div id="galleryContainer"></div>
+        </div>
+
+        <div id="stats" class="section">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number" id="totalMemories">0</div><div class="stat-label">Souvenirs enregistrés</div></div>
+                <div class="stat-card"><div class="stat-number" id="totalHours">0h</div><div class="stat-label">Temps total enregistré</div></div>
+                <div class="stat-card"><div class="stat-number" id="oldestYear">-</div><div class="stat-label">Plus ancien souvenir</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle"></div>
+            <audio id="modalAudio" controls class="modal-audio"></audio>
+            <div id="modalNotes" style="margin: 16px 0; padding: 16px; background: #f9f9f9; border-radius: 10px; color: #666;"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-share" onclick="shareMemory()">📤 Partager</button>
+                <button class="modal-btn modal-btn-close" onclick="closeModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--primary-dark); margin-bottom: 16px;">📤 Partager ce souvenir</h2>
+            <p style="color: #666; margin-bottom: 16px;">Partagez ce lien avec votre famille :</p>
+            <div class="share-link" id="shareLink"></div>
+            <button class="btn-copy" onclick="copyShareLink()">📋 Copier le lien</button>
+            <button class="modal-btn modal-btn-close" onclick="document.getElementById('shareModal').classList.remove('active')" style="width: 100%; margin-top: 12px;">Fermer</button>
+        </div>
+    </div>
+
+    <script>
+        const PASSWORD = 'memovie2024';
+        let mediaRecorder, audioChunks = [], currentAudio = null, currentMemoryId = null;
+
+        function checkAuth() {
+            if (sessionStorage.getItem('memovie_auth') !== 'true') {
+                const pwd = prompt('🔑 Entrez votre clé d\'accès :');
+                if (pwd === PASSWORD) {
+                    sessionStorage.setItem('memovie_auth', 'true');
+                    init();
+                } else {
+                    alert('Accès refusé');
+                    checkAuth();
+                }
+            }
+        }
+
+        function init() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            if (tabName === 'gallery') loadGallery();
+            if (tabName === 'stats') updateStats();
+        }
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                const url = URL.createObjectURL(blob);
+                document.getElementById('audioPlayback').src = url;
+                document.getElementById('audioPreview').classList.add('active');
+                currentAudio = blob;
+            };
+            mediaRecorder.start();
+            document.getElementById('recordBtn').classList.add('recording');
+            document.getElementById('recordBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+
+        function saveMemory() {
+            const title = document.getElementById('title').value.trim();
+            const date = document.getElementById('date').value;
+            const category = document.getElementById('category').value;
+            const notes = document.getElementById('notes').value.trim();
+            if (!title || !date || !category || !currentAudio) {
+                alert('⚠️ Veuillez remplir tous les champs et enregistrer un audio');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                const memories = JSON.parse(localStorage.getItem('memories') || '[]');
+                memories.push({id: Date.now(), title, date, category, notes, audio: reader.result, createdAt: new Date().toISOString()});
+                localStorage.setItem('memories', JSON.stringify(memories));
+                showToast('✅ Souvenir enregistré avec succès !');
+                resetForm();
+            };
+            reader.readAsDataURL(currentAudio);
+        }
+
+        function resetForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('audioPreview').classList.remove('active');
+            currentAudio = null;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+        }
+
+        function loadGallery() {
+            const memories = JSON.parse(localStorage.getItem('memories') || '[]');
+            if (memories.length === 0) {
+                document.getElementById('galleryContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><h2>Aucun souvenir encore</h2><p>Commencez à enregistrer vos souvenirs précieux !</p></div>';
+                return;
+            }
+            displayGallery(memories);
+        }
+
+        function displayGallery(memories) {
+            const sorted = [...memories].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const html = sorted.map(m => `<div class="memory-card"><div class="memory-card-header"><div class="memory-card-date">${new Date(m.date).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}</div><h3 class="memory-card-title">${m.title}</h3></div><div class="memory-card-body"><div class="memory-card-meta"><span>📁 ${m.category}</span><span>📅 ${new Date(m.date).getFullYear()}</span></div><div class="memory-card-actions"><button class="btn-small btn-play" onclick="playMemory(${m.id})">▶️ Écouter</button><button class="btn-small btn-share" onclick="prepareShare(${m.id})">📤 Partager</button><button class="btn-small btn-delete" onclick="deleteMemory(${m.id})">🗑️ Supprimer</button></div></div></div>`).join('');
+            document.getElementById('galleryContainer').innerHTML = html;
+        }
+
+        function filterGallery() {
+            const memories = JSON.parse(localStorage.getItem('memories') || '[]');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const filtered = memories.filter(m => (m.title.toLowerCase().includes(search) || m.category.toLowerCase().includes(search)) && (!category || m.category === category));
+            displayGallery(filtered);
+        }
+
+        function playMemory(id) {
+            const memories = JSON.parse(localStorage.getItem('memories') || '[]');
+            const m = memories.find(x => x.id === id);
+            if (!m) return;
+            currentMemoryId = id;
+            document.getElementById('modalTitle').textContent = m.title;
+            document.getElementById('modalAudio').src = m.audio;
+            document.getElementById('modalNotes').innerHTML = m.notes ? `<strong>Notes:</strong><br>${m.notes}` : '<em>Aucune note</em>';
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.getElementById('modalAudio').pause();
+        }
+
+        function prepareShare(id) {
+            currentMemoryId = id;
+            const link = `${window.location.href}?view=${id}`;
+            document.getElementById('shareLink').textContent = link;
+            document.getElementById('shareModal').classList.add('active');
+        }
+
+        function shareMemory() {
+            const memories = JSON.parse(localStorage.getItem('memories') || '[]');
+            const m = memories.find(x => x.id === currentMemoryId);
+            if (!m) return;
+            const shareData = { title: m.title, text: `Écoutez mon souvenir: ${m.title}` };
+            if (navigator.share) { navigator.share(shareData); } else { alert('Partage manuel: ' + `${window.location.href}?view=${m.id}`); }
+        }
+
+        function copyShareLink() {
+            const link = document.getElementById('shareLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('✅ Lien copié !');
+                document.getElementById('shareModal').classList.remove('active');
+            });
+        }
+
+        function deleteMemory(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce souvenir ?')) return;
+            let memories = JSON.parse(localStorage.getItem('memories') || '[]');
+            memories = memories.filter(m => m.id !== id);
+            localStorage.setItem('memories', JSON.stringify(memories));
+            loadGallery();
+            showToast('🗑️ Souvenir supprimé');
+        }
+
+        function updateStats() {
+            const memories = JSON.parse(localStorage.getItem('memories') || '[]');
+            document.getElementById('totalMemories').textContent = memories.length;
+            if (memories.length > 0) {
+                const years = memories.map(m => new Date(m.date).getFullYear());
+                document.getElementById('oldestYear').textContent = Math.min(...years);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.addEventListener('load', () => {
+            checkAuth();
+            init();
+        });
+    </script>
+</body>
+</html>
